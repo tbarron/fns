@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request, g, session, flash
 from flask import redirect, url_for, abort
 from flask.ext.openid import OpenID
+# from flask.ext.oidc import OpenIDConnect
+
+from flask.ext.wtf import Form
+from wtforms import StringField, BooleanField
+from wtforms.validators import DataRequired
 
 from openid.extensions import pape
 
@@ -8,24 +13,32 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+# setup sqlalchemy
+Base = declarative_base()
 app = Flask(__name__)
+app.config.from_object('config')
 app.config.update(
     DATABASE_URI = 'sqlite:///flask-openid.db',
-    SECRET_KEY = 'frabjous_day',
-    DEBUG = True
+    #    SECRET_KEY = 'frabjous_day',
+    #    DEBUG = True
 )
-
-# setup flask-openid
-oid = OpenID(app, safe_roots=[], extension_responses=[pape.Response])
-
-# setup sqlalchemy
 engine = create_engine(app.config['DATABASE_URI'])
 db_session = scoped_session(sessionmaker(autocommit=True,
                                          autoflush=True,
                                          bind=engine))
-
-Base = declarative_base()
 Base.query = db_session.query_property()
+
+# setup flask-openid
+oid = OpenID(app, safe_roots=[], extension_responses=[pape.Response])
+
+# oidc = OpenIDConnect(app, {
+#     'OIDC_CLIENT_SECRETS': './client_secrets.json',
+#     'SECRET_KEY': 'nobody-knows'
+#     })
+
+def start_up(debug=True):
+    init_db()
+    app.run(debug=debug)
 
 def init_db():
     Base.metadata.create_all(bind=engine)
@@ -42,6 +55,11 @@ class User(Base):
         self.email = email
         self.openid = openid
 
+class LoginForm(Form):
+    openid = StringField('openid', validators=[DataRequired()])
+    remember_me = BooleanField('remember_me', default=False)
+
+
 @app.before_request
 def before_request():
     g.user = None
@@ -55,9 +73,30 @@ def after_request(response):
     return response
 
 
+def bm_test_list():
+    bml = [
+        {
+        'bm_name': 'Google',
+        'bm_url': 'http://www.google.com',
+        'bm_comment': 'my default search engine'
+        },
+        {
+        'bm_name': 'Workflowy',
+        'bm_url': 'http://www.workflowy.com',
+        'bm_comment': 'my organizer'
+        },
+        ]
+    return bml
+
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    user = {'nickname': 'Thom'}
+    # return render_template('index.html', title='Home', user=user)
+    return render_template('index.html',
+                           title=None,
+                           user=user,
+                           bm_list=bm_test_list())
 
 @app.route('/login', methods=['GET', 'POST'])
 @oid.loginhandler
@@ -75,8 +114,16 @@ def login():
             return oid.try_login(openid, ask_for=['email', 'nickname'],
                                          ask_for_optional=['fullname'],
                                          extensions=[pape_req])
-    return render_template('login.html', next=oid.get_next_url(),
-                           error=oid.fetch_error())
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for OpenID="%s", remember_me=%s' %
+              (form.openid.data, str(form.remember_me.data)))
+        return redirect(oid.get_next_uril())
+        
+    return render_template('login.html',
+                           next=oid.get_next_url(),
+                           error=oid.fetch_error(),
+                           form=form)
 
 
 @oid.after_login
@@ -155,6 +202,7 @@ def logout():
     flash(u'You have been signed out')
     return redirect(oid.get_next_url())
 
+# app.route('/')(oidc.check(index))
 
 if __name__ == '__main__':
     init_db()

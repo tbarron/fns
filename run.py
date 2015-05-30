@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-from app import app, init_db
+from app import start_up
 import pdb
 
 # pdb.set_trace()
-init_db()
-app.run(debug=True)
+start_up(debug=True)

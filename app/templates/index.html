@@ -1,5 +1,25 @@
 {% extends "layout.html" %}
-{% block title %} Index {% endblock %}
+{% block title %} 
+  {% if title %}
+    Index: {{ title }}
+  {% else %}
+    Index: no title provided
+  {% endif %}
+{% endblock %}
 {% block body %}
-  <h2>Index page</h2>
+  {% if title %}
+    <h2>Index: {{ title }}</h2>
+  {% else %}
+    <h2>Index: no title provided</h2>
+  {% endif %}
+
+  <h3>Hello, {{ user.nickname }}</h3>
+
+  <h4>Here are your bookmarks:</h4>
+
+  {% for bm in bm_list %}
+  <div><p><a href="{{ bm.bm_url }}">{{ bm.bm_name }}</a>
+       <br>{{ bm.bm_comment }}</p>
+  {% endfor %}
+
 {% endblock %}
