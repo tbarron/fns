@@ -3,12 +3,10 @@ from openid.extensions import pape
 from app import app, oid, LoginForm, User
 import fns_util
 
-# @app.route('/')
-# @app.route('/index')
-# def index():
-#     return "Hello, world!"
 
+# -----------------------------------------------------------------------------
 @app.route('/')
+@app.route('/index')
 def index():
     user = None
     try:
@@ -25,6 +23,7 @@ def index():
                            bm_list=fns_util.bm_test_list())
 
 
+# -----------------------------------------------------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 @oid.loginhandler
 def login():
@@ -43,23 +42,21 @@ def login():
                                          extensions=[pape_req])
     form = LoginForm()
     if form.validate_on_submit():
-        flash('Login requested for OpenID="%s", remember_me=%s' %
-              (form.openid.data, str(form.remember_me.data)))
         return redirect(oid.get_next_uril())
 
     msg = oid.fetch_error()
     if msg:
         flash(msg)
-    if hasattr(login, 'already_rendered') and login.already_rendered:
+    elif fns_util.pu_time():
         flash('Please enter an openid')
-    else:
-        login.already_rendered = True
+
     return render_template('login.html',
                            next=oid.get_next_url(),
                            error=oid.fetch_error(),
                            form=form)
 
 
+# -----------------------------------------------------------------------------
 @oid.after_login
 def create_or_login(resp):
     """This is called when login with OpenID succeeded and it's not
@@ -81,16 +78,18 @@ def create_or_login(resp):
                             email=resp.email))
 
 
+# -----------------------------------------------------------------------------
 @app.route('/logout')
 def logout():
+    fns_util.pu_time(reset=True)
     if session.pop('openid', None):
         flash(u'You have been signed out')
     else:
         flash(u'You were already signed out')
-    login.already_rendered = False
     return redirect(oid.get_next_url())
 
 
+# -----------------------------------------------------------------------------
 @app.route('/create-profile', methods=['GET', 'POST'])
 def create_profile():
     """If this is the user's first login, the create_or_login function
@@ -112,6 +111,8 @@ def create_profile():
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url())
 
+
+# -----------------------------------------------------------------------------
 @app.route('/profile', methods=['GET', 'POST'])
 def edit_profile():
     """Updates a profile"""
