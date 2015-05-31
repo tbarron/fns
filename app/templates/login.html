@@ -15,4 +15,15 @@
       <br><input type=submit value="Login" size=30>
       <input type=hidden name=next value="{{ next }}">
   </form>
-{% endblock %}
+  <div class="fcenter">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <br>{{ message }}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  </div>
+  </div>
+</body>
+</html>
