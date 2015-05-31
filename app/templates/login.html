@@ -1,16 +1,18 @@
-{% extends "layout.html" %}
-{% block title %}Login{% endblock %}
-{% block body %}
-  <h2>Login</h2>
-  <form action="" method="post" name="login">
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="static/fns.css">
+</head>
+<body>
+  <div class="center">
+  <form action="" method="post" name="login" class="fcenter">
     {{ form.hidden_tag() }}
     {% if error %}
        <p class=error><strong>Error</strong> {{ error }}</p>
     {% endif %}
     <p> OpenID:
       {{ form.openid(size=80) }}
-      {{ form.remember_me }} Remember Me
-      <input type=submit value="Login" size=30>
+      <br>{{ form.remember_me }} Remember Me
+      <br><input type=submit value="Login" size=30>
       <input type=hidden name=next value="{{ next }}">
   </form>
 {% endblock %}
