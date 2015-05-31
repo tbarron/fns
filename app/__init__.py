@@ -119,7 +119,14 @@ def login():
         flash('Login requested for OpenID="%s", remember_me=%s' %
               (form.openid.data, str(form.remember_me.data)))
         return redirect(oid.get_next_uril())
-        
+
+    msg = oid.fetch_error()
+    if msg:
+        flash(msg)
+    if hasattr(login, 'already_rendered') and login.already_rendered:
+        flash('Sorry, you need to enter an openid')
+    else:
+        login.already_rendered = True
     return render_template('login.html',
                            next=oid.get_next_url(),
                            error=oid.fetch_error(),
