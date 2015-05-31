@@ -89,16 +89,6 @@ def bm_test_list():
     return bml
 
 
-@app.route('/')
-def index():
-    if g.user is None:
-        return redirect('/login')
-
-    return render_template('index.html',
-                           title='Float & Sink',
-                           user=g.user,
-                           bm_list=bm_test_list())
-
 @app.route('/login', methods=['GET', 'POST'])
 @oid.loginhandler
 def login():
@@ -212,6 +202,8 @@ def logout():
         flash(u'You were already signed out')
     login.already_rendered = False
     return redirect(oid.get_next_url())
+
+from app import views
 
 # app.route('/')(oidc.check(index))
 
