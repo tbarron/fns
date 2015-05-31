@@ -45,6 +45,23 @@ class User(db.Model):
         self.email = email
         self.openid = openid
 
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    owner = db.Column(db.Integer)
+    bm_name = db.Column(db.String(80))
+    bm_url = db.Column(db.String(250))
+    bm_comment = db.Column(db.Text(1024))
+
+    def __init__(self, owner, name, url, comment):
+        if type(owner) == int:
+            self.owner = owner
+        elif type(owner) == str:
+            z = User.query.filter_by(name=owner).first()
+            self.owner = z.id
+        self.bm_name = name
+        self.bm_url = url
+        self.bm_comment = comment
+
 class LoginForm(Form):
     openid = StringField('openid', validators=[DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
