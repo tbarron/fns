@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}Edit Bookmark{% endblock %}
+{% block body %}
+  <h2>Edit Bookmark</h2>
+  <form action="" method=post>
+    <table><tr>
+        <td>Bookmark name:
+        <td>{{ form.bm_name(size=80, autofocus="autofocus") }}
+      </tr><tr>
+        <td>Bookmark URL:
+        <td>{{ form.bm_url(size=80) }}
+      </tr><tr>
+        <td>Bookmark Comment:
+        <td>{{ form.bm_comment(size=80) }}
+    </tr></table>
+    <p>
+      <input type=submit value="Submit">
+      <input type=hidden name=next value="{{ next }}">
+  </form>
+{% endblock %}
+
