@@ -140,3 +140,26 @@ def edit_profile():
             db.session.commit()
             return redirect(url_for('index'))
     return render_template('edit_profile.html', form=form)
+
+
+# -----------------------------------------------------------------------------
+@app.route('/bookmark', methods=['GET', 'POST'])
+def edit_bookmark():
+    """
+    Edit a bookmark
+    """
+    if g.user is None:
+        return redirect('/login')
+    if request.method == 'POST':
+        if 'delete' in request.form:
+            bm = Bookmark.query.filter_by(id=request.form['id']).first()
+            db.session.delete(bm)
+            db.session.commit()
+            return redirect(url_for('index'))
+        g.bookmark.owner = g.user.id
+        g.bookmark.bm_name = request.form['bm_name']
+        g.bookmark.bm_url = request.form['bm_url']
+        g.bookmark.bm_comment = request.form['bm_comment']
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('edit_bookmark.html', form=form)
