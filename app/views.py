@@ -1,6 +1,7 @@
 from flask import render_template, redirect, request, g, session, flash
+from flask import url_for, abort
 from openid.extensions import pape
-from app import app, oid, LoginForm, User
+from app import app, oid, LoginForm, User, db
 import fns_util
 
 
@@ -106,8 +107,8 @@ def create_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            db_session.add(User(name, email, session['openid']))
-            db_session.commit()
+            db.session.add(User(name, email, session['openid']))
+            db.session.commit()
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url())
 
@@ -121,8 +122,8 @@ def edit_profile():
     form = dict(name=g.user.name, email=g.user.email)
     if request.method == 'POST':
         if 'delete' in request.form:
-            db_session.delete(g.user)
-            db_session.commit()
+            db.session.delete(g.user)
+            db.session.commit()
             session['openid'] = None
             flash(u'Profile deleted')
             return redirect(url_for('index'))
@@ -136,6 +137,6 @@ def edit_profile():
             flash(u'Profile successfully created')
             g.user.name = form['name']
             g.user.email = form['email']
-            db_session.commit()
+            db.session.commit()
             return redirect(url_for('edit_profile'))
     return render_template('edit_profile.html', form=form)

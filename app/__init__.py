@@ -9,24 +9,11 @@ from wtforms.validators import DataRequired
 
 from openid.extensions import pape
 
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from flask.ext.sqlalchemy import SQLAlchemy
 
-# setup sqlalchemy
-Base = declarative_base()
 app = Flask(__name__)
 app.config.from_object('config')
-app.config.update(
-    DATABASE_URI = 'sqlite:///flask-openid.db',
-    #    SECRET_KEY = 'frabjous_day',
-    #    DEBUG = True
-)
-engine = create_engine(app.config['DATABASE_URI'])
-db_session = scoped_session(sessionmaker(autocommit=True,
-                                         autoflush=True,
-                                         bind=engine))
-Base.query = db_session.query_property()
+db = SQLAlchemy(app)
 
 # setup flask-openid
 oid = OpenID(app, safe_roots=[], extension_responses=[pape.Response])
@@ -44,14 +31,14 @@ def start_up(debug=True):
     app.run(debug=debug)
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    db.create_all()
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(60))
-    email = Column(String(200))
-    openid = Column(String(200))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(60))
+    email = db.Column(db.String(200))
+    openid = db.Column(db.String(200))
 
     def __init__(self, name, email, openid):
         self.name = name
@@ -72,14 +59,11 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    db_session.remove()
+    db.session.remove()
     return response
 
 
 from app import views
 
+# This is for OpenID Connect, which we are not using yet
 # app.route('/')(oidc.check(index))
-
-if __name__ == '__main__':
-    init_db()
-    # app.run()
