@@ -91,11 +91,12 @@ def bm_test_list():
 
 @app.route('/')
 def index():
-    user = {'nickname': 'Thom'}
-    # return render_template('index.html', title='Home', user=user)
+    if g.user is None:
+        return redirect('/login')
+
     return render_template('index.html',
-                           title=None,
-                           user=user,
+                           title='Float & Sink',
+                           user=g.user,
                            bm_list=bm_test_list())
 
 @app.route('/login', methods=['GET', 'POST'])
