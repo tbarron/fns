@@ -7,8 +7,16 @@
   <table><tr>
     <td>| <a href="/">Home</a> | 
     <td>| <a href="login">Login</a> | 
+    <td>| <a href="logout">Logout</a> | 
     <td>| <a href="lists">Lists</a> |
   </tr></table>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}<ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>{% endif %}
+  {% endwith %}
   {% block body %}{% endblock %}
 </body>
 </html>
