@@ -10,7 +10,7 @@
        <p class=error><strong>Error</strong> {{ error }}</p>
     {% endif %}
     <p> OpenID:
-      {{ form.openid(size=80) }}
+      {{ form.openid(size=80, autofocus="autofocus") }}
       <br>{{ form.remember_me }} Remember Me
       <br><input type=submit value="Login" size=30>
       <input type=hidden name=next value="{{ next }}">
