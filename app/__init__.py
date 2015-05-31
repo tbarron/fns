@@ -125,7 +125,7 @@ def login():
     if msg:
         flash(msg)
     if hasattr(login, 'already_rendered') and login.already_rendered:
-        flash('Sorry, you need to enter an openid')
+        flash('Please enter an openid')
     else:
         login.already_rendered = True
     return render_template('login.html',
@@ -147,7 +147,7 @@ def create_or_login(resp):
         session['auth_time'] = pape_resp.auth_time
     user = User.query.filter_by(openid=resp.identity_url).first()
     if user is not None:
-        flash(u'Successfully signed in')
+        flash(u'Successfully signed in as %s' % user.name)
         g.user = user
         return redirect(oid.get_next_url())
     return redirect(url_for('create_profile', next=oid.get_next_url(),
