@@ -97,7 +97,7 @@ def create_profile():
     will redirect here so that the user can set up his profile.
     """
     if g.user is not None or 'openid' not in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('login'))
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -126,7 +126,7 @@ def edit_profile():
             db.session.commit()
             session['openid'] = None
             flash(u'Profile deleted')
-            return redirect(url_for('index'))
+            return redirect(url_for('login'))
         form['name'] = request.form['name']
         form['email'] = request.form['email']
         if not form['name']:
@@ -138,5 +138,5 @@ def edit_profile():
             g.user.name = form['name']
             g.user.email = form['email']
             db.session.commit()
-            return redirect(url_for('edit_profile'))
+            return redirect(url_for('index'))
     return render_template('edit_profile.html', form=form)
