@@ -205,8 +205,11 @@ def edit_profile():
 
 @app.route('/logout')
 def logout():
-    session.pop('openid', None)
-    flash(u'You have been signed out')
+    if session.pop('openid', None):
+        flash(u'You have been signed out')
+    else:
+        flash(u'You were already signed out')
+    login.already_rendered = False
     return redirect(oid.get_next_url())
 
 # app.route('/')(oidc.check(index))
