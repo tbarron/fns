@@ -151,17 +151,34 @@ def edit_bookmark():
     """
     if g.user is None:
         return redirect('/login')
+    # pdb.set_trace()
     if request.method == 'POST':
         if 'delete' in request.form:
             bm = Bookmark.query.filter_by(id=request.form['delete']).first()
             db.session.delete(bm)
             db.session.commit()
             return redirect(url_for('index'))
-        db.session.add(Bookmark(g.user.id,
-                                request.form['name'],
-                                request.form['url'],
-                                request.form['comment']))
-        db.session.commit()
+        elif 'edit' in request.form:
+            bm = Bookmark.query.filter_by(id= request.form['edit']).first()
+            form = BookmarkForm()
+            form.id.data = bm.id
+            form.name.data = bm.name
+            form.url.data = bm.url
+            form.comment.data = bm.comment
+            return render_template('edit_bookmark.html', form=form, bm=bm)
+        elif 'id' in request.form and request.form['id']:
+            bm = Bookmark.query.filter_by(id=request.form['id']).first()
+            if bm is not None:
+                bm.name = request.form['name']
+                bm.url = request.form['url']
+                bm.comment = request.form['comment']
+                db.session.commit()
+        else:
+            db.session.add(Bookmark(g.user.id,
+                                    request.form['name'],
+                                    request.form['url'],
+                                    request.form['comment']))
+            db.session.commit()
         return redirect(url_for('index'))
 
     form = BookmarkForm()
