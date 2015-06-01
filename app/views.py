@@ -22,7 +22,7 @@ def index():
     return render_template('index.html',
                            title='Float & Sink',
                            user=user,
-                           bm_list=fns_util.bm_test_list())
+                           bm_list=fns_util.bm_list(g.user.id, db))
 
 
 # -----------------------------------------------------------------------------

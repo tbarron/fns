@@ -1,21 +1,13 @@
 import time
+import pdb
+from app import Bookmark
 
 
 # -----------------------------------------------------------------------------
-def bm_test_list():
-    bml = [
-        {
-        'bm_name': 'Google',
-        'bm_url': 'http://www.google.com',
-        'bm_comment': 'my default search engine'
-        },
-        {
-        'bm_name': 'Workflowy',
-        'bm_url': 'http://www.workflowy.com',
-        'bm_comment': 'my organizer'
-        },
-        ]
-    return bml
+def bm_list(owner_id, db):
+    # pdb.set_trace()
+    z = db.session.query(Bookmark).filter_by(owner=owner_id).all()
+    return z
 
 
 # -----------------------------------------------------------------------------

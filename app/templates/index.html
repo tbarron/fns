@@ -17,10 +17,18 @@
 
   <h4>Here are your bookmarks:</h4>
 
+  <form action="bookmark" method="post">
+  <table class="bm_list">
   {% for bm in bm_list %}
-  <div><p><a href="{{ bm.bm_url }}">{{ bm.bm_name }}</a>
-       <br>{{ bm.bm_comment }}</p>
+    <tr><div>
+        <td><p><a href="{{ bm.bm_url }}">{{ bm.bm_name }}</a>
+            <br>{{ bm.bm_comment }}</p>
+        <td><button type=submit name="delete" value="{{ bm.id }}">Delete</button>
+        <td><button type=submit name="edit" value="{{ bm.id }}">Edit</button>
+    </div></tr>
   {% endfor %}
+  </table>
+  </form>
 
   <br><a href="/bookmark">new bookmark</a>
 
