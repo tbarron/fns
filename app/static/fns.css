@@ -12,3 +12,8 @@ body {
 .fcenter {
     text-align: center;
 }
+
+.bm_list {
+    margin-left: 50px;
+    width: 70%;
+}
