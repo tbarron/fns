@@ -4,7 +4,7 @@ from flask.ext.openid import OpenID
 # from flask.ext.oidc import OpenIDConnect
 
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField
+from wtforms import StringField, BooleanField, HiddenField
 from wtforms.validators import DataRequired
 
 from openid.extensions import pape
@@ -68,6 +68,7 @@ class LoginForm(Form):
 
 
 class BookmarkForm(Form):
+    id = HiddenField('id')
     name = StringField('name')
     url = StringField('url')
     comment = StringField('comment')
