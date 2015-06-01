@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired
 from openid.extensions import pape
 
 from flask.ext.sqlalchemy import SQLAlchemy
+import pdb
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -48,9 +49,9 @@ class User(db.Model):
 class Bookmark(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.Integer)
-    bm_name = db.Column(db.String(80))
-    bm_url = db.Column(db.String(250))
-    bm_comment = db.Column(db.Text(1024))
+    name = db.Column(db.String(80))
+    url = db.Column(db.String(250))
+    comment = db.Column(db.Text(1024))
 
     def __init__(self, owner, name, url, comment):
         if type(owner) == int:
@@ -58,9 +59,9 @@ class Bookmark(db.Model):
         elif type(owner) == str:
             z = User.query.filter_by(name=owner).first()
             self.owner = z.id
-        self.bm_name = name
-        self.bm_url = url
-        self.bm_comment = comment
+        self.name = name
+        self.url = url
+        self.comment = comment
 
 class LoginForm(Form):
     openid = StringField('openid', validators=[DataRequired()])
