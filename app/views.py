@@ -1,8 +1,9 @@
 from flask import render_template, redirect, request, g, session, flash
 from flask import url_for, abort
 from openid.extensions import pape
-from app import app, oid, LoginForm, User, db
+from app import app, oid, LoginForm, BookmarkForm, User, Bookmark, db
 import fns_util
+import pdb
 
 
 # -----------------------------------------------------------------------------
@@ -152,14 +153,16 @@ def edit_bookmark():
         return redirect('/login')
     if request.method == 'POST':
         if 'delete' in request.form:
-            bm = Bookmark.query.filter_by(id=request.form['id']).first()
+            bm = Bookmark.query.filter_by(id=request.form['delete']).first()
             db.session.delete(bm)
             db.session.commit()
             return redirect(url_for('index'))
-        g.bookmark.owner = g.user.id
-        g.bookmark.bm_name = request.form['bm_name']
-        g.bookmark.bm_url = request.form['bm_url']
-        g.bookmark.bm_comment = request.form['bm_comment']
+        db.session.add(Bookmark(g.user.id,
+                                request.form['name'],
+                                request.form['url'],
+                                request.form['comment']))
         db.session.commit()
         return redirect(url_for('index'))
+
+    form = BookmarkForm()
     return render_template('edit_bookmark.html', form=form)
