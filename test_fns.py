@@ -7,11 +7,11 @@ import pdb
 import tempfile
 
 class TestFNS:
+    redirect_msg = "You should be redirected automatically to target URL:"
 
     def test_empty_db_root(self):
         rv = self.app.get('/')
-        redirect_msg = "You should be redirected automatically to target URL:"
-        assert redirect_msg in rv.data
+        assert self.redirect_msg in rv.data
         assert '<a href="/login">' in rv.data
 
     def test_empty_db_login(self):
