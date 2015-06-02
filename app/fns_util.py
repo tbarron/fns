@@ -11,6 +11,13 @@ def bm_list(owner_id, db):
 
 
 # -----------------------------------------------------------------------------
+def normalize_url(url):
+    if not url.startswith('http'):
+        url = 'http://' + url.lstrip("/:")
+    return url
+
+
+# -----------------------------------------------------------------------------
 def pu_time(reset=False):
     """
     Return True if we've been called at least 3 times in the last minute

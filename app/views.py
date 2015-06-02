@@ -172,13 +172,14 @@ def edit_bookmark():
             bm = Bookmark.query.filter_by(id=request.form['id']).first()
             if bm is not None:
                 bm.name = request.form['name']
-                bm.url = request.form['url']
+                bm.url = fns_util.normalize_url(request.form['url'])
                 bm.comment = request.form['comment']
                 db.session.commit()
         else:
+            url = fns_util.normalize_url(request.form['url'])
             db.session.add(Bookmark(g.user.id,
                                     request.form['name'],
-                                    request.form['url'],
+                                    url,
                                     request.form['comment']))
             db.session.commit()
         return redirect(url_for('index'))
