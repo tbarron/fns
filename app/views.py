@@ -121,7 +121,7 @@ def create_profile():
 def edit_profile():
     """Updates a profile"""
     if g.user is None:
-        abort(401)
+        return redirect('/login')
     form = dict(name=g.user.name, email=g.user.email)
     if request.method == 'POST':
         if 'delete' in request.form:
