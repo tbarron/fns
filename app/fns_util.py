@@ -1,7 +1,7 @@
 import time
 import pdb
 from app import Bookmark
-
+from app import log
 
 # -----------------------------------------------------------------------------
 def bm_list(owner_id, db):
@@ -26,7 +26,7 @@ def pu_time(reset=False):
         pu_time.queue = [now]
 
     pu_time.queue = [x for x in pu_time.queue if now - x < 60]
-    # print pu_time.queue
+    log.debug(pu_time.queue)
     if len(pu_time.queue) < 5:
         return False
     return True

@@ -10,7 +10,10 @@ from wtforms.validators import DataRequired
 from openid.extensions import pape
 
 from flask.ext.sqlalchemy import SQLAlchemy
+import logging
+import logging.handlers
 import pdb
+import socket
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -33,6 +36,23 @@ def start_up(debug=True):
 
 def init_db():
     db.create_all()
+
+def init_logging():
+    logger = logging.getLogger("fns")
+    logger.setLevel(app.config['LOG_LEVEL'])
+    host = socket.gethostname().split('.')[0]
+    filepath = app.config['LOG_FILEPATH']
+    fh = logging.handlers.RotatingFileHandler(filepath,
+                                              maxBytes=1*1024*1024,
+                                              backupCount=5)
+    strfmt = "%(asctime)s " + ("[%s] " % host) + "%(message)s"
+    fmt = logging.Formatter(strfmt, datefmt="%Y.%m%d %H:%M:%S")
+    fh.setFormatter(fmt)
+    logger.addHandler(fh)
+    logger.info('-' * (55 - len(host)))
+    return logger
+
+log = init_logging()
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -77,6 +97,7 @@ class BookmarkForm(Form):
 
 @app.before_request
 def before_request():
+    log.debug('before request')
     g.user = None
     if 'openid' in session:
         g.user = User.query.filter_by(openid=session['openid']).first()

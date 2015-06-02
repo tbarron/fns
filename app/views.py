@@ -2,6 +2,7 @@ from flask import render_template, redirect, request, g, session, flash
 from flask import url_for, abort
 from openid.extensions import pape
 from app import app, oid, LoginForm, BookmarkForm, User, Bookmark, db
+from app import log
 import fns_util
 import pdb
 
@@ -10,6 +11,7 @@ import pdb
 @app.route('/')
 @app.route('/index')
 def index():
+    log.debug('index routine')
     user = None
     try:
         user = g.user
