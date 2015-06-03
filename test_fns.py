@@ -21,6 +21,12 @@ class TestFNS:
         for exp in expected:
             assert exp in rv.data
 
+    def test_logged_out_root(self):
+        """
+        Hitting / when logged out should redirect to /login
+        """
+        self.logged_out_url('/')
+
     def test_logged_out_profile(self):
         """
         Hitting /profile when logged out should redirect to /login
@@ -38,6 +44,12 @@ class TestFNS:
         Hitting /index when logged out should redirect to /login
         """
         self.logged_out_url('/index')
+
+    def test_logged_out_unsupported(self):
+        """
+        Hitting /index when logged out should redirect to /login
+        """
+        self.logged_out_url('/unsupported')
 
     # -------------------------------------------------------------------------
     # Helper methods
