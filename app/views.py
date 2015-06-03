@@ -8,6 +8,16 @@ import pdb
 
 
 # -----------------------------------------------------------------------------
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    if g.user is not None:
+        return redirect('/index')
+    else:
+        return redirect('/login')
+
+
+# -----------------------------------------------------------------------------
 @app.route('/')
 @app.route('/index')
 def index():
