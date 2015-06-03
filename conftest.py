@@ -13,6 +13,17 @@ def pytest_addoption(parser):
                      help="where to write a test log")
     parser.addoption("--dbg", action="append", default=[],
                      help="start debugger on test named or ALL")
+    parser.addoption("--bitter", action="store_true", default=False,
+                     help="run to bitter end despite errors (opposite of -x)")
+
+# -----------------------------------------------------------------------------
+def pytest_configure(config):
+    """
+    if --bitter is on, turn off -x
+    """
+    if config.getoption("--bitter"):
+        config.known_args_namespace.exitfirst = False
+
 
 # -----------------------------------------------------------------------------
 def pytest_report_header(config):
