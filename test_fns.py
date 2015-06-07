@@ -6,6 +6,7 @@ from flask import redirect, url_for, flash
 from app import app, init_db, User, log, g, oid
 import os
 import pdb
+import pytest
 import tempfile
 from contextlib import contextmanager
 from flask import appcontext_pushed
@@ -73,10 +74,12 @@ class TestFNS:
         """
         Hitting / when logged in should redirect to /index
         """
+        pytest.debug_func()
         rv = self.login('http://recumbutt.wordpress.com')
         assert "Successfully signed in as" in rv.data
         assert "Here are your bookmarks" in rv.data
         rv = self.logout()
+        assert app.ucache is None
         assert self.login_form in rv.data
 
     # -------------------------------------------------------------------------
