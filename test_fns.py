@@ -3,7 +3,7 @@ import pickle
 import pprint
 import flask
 from flask import redirect, url_for, flash
-from app import app, init_db, User, log, g, oid
+from app import app, init_db, User, log, g, oid, db
 import os
 import pdb
 import pytest
@@ -42,9 +42,7 @@ class LoginTestMonkeyPatch(object):
 
     # -------------------------------------------------------------------------
     def try_login(self, *args, **kwargs):
-        g.user = User('newbie',
-                      'somebody@somewhere.org',
-                      'http://occlusion.somewhere.org')
+        g.user = User.query.filter_by(name='good').first()
         app.ucache = g.user
         flash(u'Successfully signed in as %s' % g.user.name)
         return redirect('/')
@@ -57,12 +55,18 @@ class TestFNS:
 
     # -------------------------------------------------------------------------
     def test_empty_db_root(self):
+        """
+        Visiting the root url when not logged in should get the login page
+        """
         rv = self.app.get('/')
         assert self.redirect_msg in rv.data
         assert '<a href="/login">' in rv.data
 
     # -------------------------------------------------------------------------
     def test_empty_db_login(self):
+        """
+        Visiting the login url should get the login page
+        """
         rv = self.app.get('/login')
         expected = ['href="static/fns.css"',
                     'name="login" class="fcenter"']
@@ -74,9 +78,11 @@ class TestFNS:
         """
         Hitting / when logged in should redirect to /index
         """
-        pytest.debug_func()
-        rv = self.login('http://recumbutt.wordpress.com')
-        assert "Successfully signed in as" in rv.data
+        rv = self.login('http://good.good_domain.org')
+        assert "Successfully signed in as good" in rv.data
+        assert "Here are your bookmarks" in rv.data
+        rv = self.app.get('/')
+        assert "Successfully signed in as good" not in rv.data
         assert "Here are your bookmarks" in rv.data
         rv = self.logout()
         assert app.ucache is None
@@ -122,12 +128,9 @@ class TestFNS:
     # -------------------------------------------------------------------------
     def login(self, openid):
         LoginTestMonkeyPatch(oid)
-        newbie = 'http://recumbutt.wordpress.com'
-        u = User.query.filter_by(openid=newbie).first()
-        with user_set(app, u):
-            rv = self.app.post('/login',
-                               data=dict(openid=newbie),
-                               follow_redirects=True)
+        rv = self.app.post('/login',
+                           data=dict(openid=openid),
+                           follow_redirects=True)
         return rv
 
     # -------------------------------------------------------------------------
@@ -146,6 +149,10 @@ class TestFNS:
         self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
         self.app = app.test_client()
         init_db()
+        u = User('good',
+                 'valid_email@good_domain.org',
+                 'http://good.good_domain.org')
+        db.session.add(u)
 
     # -------------------------------------------------------------------------
     def teardown_method(self, foo):
