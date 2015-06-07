@@ -56,9 +56,10 @@ def login():
         openid = request.form.get('openid')
         if openid:
             pape_req = pape.Request([])
-            return oid.try_login(openid, ask_for=['email', 'nickname'],
-                                         ask_for_optional=['fullname'],
-                                         extensions=[pape_req])
+            x = oid.try_login(openid, ask_for=['email', 'nickname'],
+                              ask_for_optional=['fullname'],
+                              extensions=[pape_req])
+            return x
     form = LoginForm()
     if form.validate_on_submit():
         return redirect(oid.get_next_uril())
