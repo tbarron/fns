@@ -79,9 +79,26 @@ class TestFNS:
         Hitting / when logged in should redirect to /index
         """
         rv = self.login('http://good.good_domain.org')
+        self.verify_index_form(rv.data,
+                               present="Successfully signed in as good")
+        # assert "Successfully signed in as good" in rv.data
+        # assert "Here are your bookmarks" in rv.data
+        rv = self.app.get('/')
+        assert "Successfully signed in as good" not in rv.data
+        assert "Here are your bookmarks" in rv.data
+        rv = self.logout()
+        assert app.ucache is None
+        assert self.login_form in rv.data
+
+    # -------------------------------------------------------------------------
+    def test_logged_in_unsupported(self):
+        """
+        Hitting an unsupported url when logged in should redirect to /index
+        """
+        rv = self.login('http://good.good_domain.org')
         assert "Successfully signed in as good" in rv.data
         assert "Here are your bookmarks" in rv.data
-        rv = self.app.get('/')
+        rv = self.app.get('/unsupported', follow_redirects=True)
         assert "Successfully signed in as good" not in rv.data
         assert "Here are your bookmarks" in rv.data
         rv = self.logout()
