@@ -45,11 +45,11 @@ def init_logging():
     fh = logging.handlers.RotatingFileHandler(filepath,
                                               maxBytes=1*1024*1024,
                                               backupCount=5)
-    strfmt = "%(asctime)s " + ("[%s] " % host) + "%(message)s"
+    strfmt = "%(asctime)s %(filename)s:%(funcName)s %(message)s"
     fmt = logging.Formatter(strfmt, datefmt="%Y.%m%d %H:%M:%S")
     fh.setFormatter(fmt)
     logger.addHandler(fh)
-    logger.info('-' * (55 - len(host)))
+    logger.info('-' * 35)
     return logger
 
 log = init_logging()
@@ -97,7 +97,6 @@ class BookmarkForm(Form):
 
 @app.before_request
 def before_request():
-    log.debug('before request')
     g.user = None
     if 'openid' in session:
         g.user = User.query.filter_by(openid=session['openid']).first()
