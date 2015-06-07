@@ -54,26 +54,6 @@ class TestFNS:
     login_form = 'name="login"'
 
     # -------------------------------------------------------------------------
-    def test_empty_db_root(self):
-        """
-        Visiting the root url when not logged in should get the login page
-        """
-        rv = self.app.get('/')
-        assert self.redirect_msg in rv.data
-        assert '<a href="/login">' in rv.data
-
-    # -------------------------------------------------------------------------
-    def test_empty_db_login(self):
-        """
-        Visiting the login url should get the login page
-        """
-        rv = self.app.get('/login')
-        expected = ['href="static/fns.css"',
-                    'name="login" class="fcenter"']
-        for exp in expected:
-            assert exp in rv.data
-
-    # -------------------------------------------------------------------------
     def test_logged_in_root(self):
         """
         Hitting / when logged in should redirect to /index
