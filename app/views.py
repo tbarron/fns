@@ -8,10 +8,21 @@ import pdb
 
 
 # -----------------------------------------------------------------------------
+def logged_in_user():
+    if hasattr(g, 'user') and g.user is not None:
+        rv = g.user
+    elif hasattr(app, 'ucache') and app.ucache is not None:
+        rv = app.ucache
+    else:
+        rv = None
+    return rv
+
+
+# -----------------------------------------------------------------------------
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    if g.user is not None:
+    if logged_in_user() is not None:
         return redirect('/index')
     else:
         return redirect('/login')
@@ -21,21 +32,14 @@ def catch_all(path):
 @app.route('/')
 @app.route('/index')
 def index():
-    user = None
-    if hasattr(g, 'user') and g.user is not None:
-        user = g.user
-    elif hasattr(app, 'ucache') and app.ucache is not None:
-        # g.user gets clobbered in the test suite. This
-        # gets around that
-        user = g.user = app.ucache
-
+    user = logged_in_user()
     if user is None:
         return redirect('/login')
 
     return render_template('index.html',
                            title='Float & Sink',
                            user=user,
-                           bm_list=fns_util.bm_list(g.user.id, db))
+                           bm_list=fns_util.bm_list(user.id, db))
 
 
 # -----------------------------------------------------------------------------
@@ -46,7 +50,7 @@ def login():
     to start the OpenID machinery.
     """
     # if we are already logged in, go back to were we came from
-    if g.user is not None:
+    if logged_in_user() is not None:
         return redirect(oid.get_next_url())
     if request.method == 'POST':
         openid = request.form.get('openid')
