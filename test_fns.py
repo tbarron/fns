@@ -180,6 +180,9 @@ class TestFNS:
     def verify_login_form(self, data):
         explist = ['<link rel="stylesheet" type="text/css" ' +
                    'href="static/fns.css">',
+                   '<p> OpenID:',
+                   '<input autofocus="autofocus" id="openid" ' +
+                   'name="openid" size="80" type="text" value="">',
                    'autofocus',
                    'class="fcenter"']
         for exp in explist:
