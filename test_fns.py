@@ -160,6 +160,35 @@ class TestFNS:
         os.close(self.db_fd)
         os.unlink(app.config['DATABASE'])
 
+    # -------------------------------------------------------------------------
+    def verify_login_form(self, data):
+        explist = ['<link rel="stylesheet" type="text/css" ' +
+                   'href="static/fns.css">',
+                   'autofocus',
+                   'class="fcenter"']
+        for exp in explist:
+            assert exp in data
+
+    # -------------------------------------------------------------------------
+    def verify_index_form(self, data, present=None, absent=None):
+        explist = ['<link rel="stylesheet" type="text/css" ' +
+                   'href="static/fns.css">',
+                   '<h3>Hello, good</h3>',
+                   'Here are your bookmarks']
+        if present:
+            if type(present) == str:
+                explist.append(present)
+            elif type(present) == list:
+                explist.extend(present)
+        for exp in explist:
+            assert exp in data
+        if absent:
+            if type(absent) == str:
+                assert absent not in data
+            elif type(absent) == list:
+                for item in absent:
+                    assert item not in data
+
 
 def test_sys_path():
     """
