@@ -41,10 +41,10 @@ def pytest_runtest_setup(item):
     For each test, just before it runs...
     """
     if any([item.name in item.config.getoption("--dbg"),
+            item.config.getoption("--dbg") in item.name,
             'all' in item.config.getoption("--dbg")]):
-        pytest.debug_func = pdb.set_trace
-    else:
-        pytest.debug_func = lambda: None
+        print("type 'b item.function' to break in the target function")
+        pdb.set_trace()
 
 
 # -----------------------------------------------------------------------------
