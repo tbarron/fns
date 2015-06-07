@@ -120,6 +120,14 @@ class TestFNS:
         self.logged_out_url('/profile')
 
     # -------------------------------------------------------------------------
+    def test_logged_out_login(self):
+        """
+        Hitting /login when logged out should return the login page
+        """
+        rv = self.app.get('/login')
+        self.verify_login_form(rv.data)
+
+    # -------------------------------------------------------------------------
     def test_logged_out_bookmark(self):
         """
         Hitting /bookmark when logged out should redirect to /login
