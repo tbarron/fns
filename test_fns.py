@@ -158,8 +158,7 @@ class TestFNS:
     # -------------------------------------------------------------------------
     def logged_out_url(self, url):
         rv = self.app.get(url)
-        assert self.redirect_msg in rv.data
-        assert '<a href="/login">' in rv.data
+        self.verify_redirect_to('login', rv.data)
 
     # -------------------------------------------------------------------------
     def setup_method(self, foo):
@@ -207,6 +206,14 @@ class TestFNS:
                     assert item not in data
 
 
+    # -------------------------------------------------------------------------
+    def verify_redirect_to(self, target=None, data=None):
+        assert self.redirect_msg in data
+        if target:
+            assert '<a href="/%s">' % target in data
+
+
+# -----------------------------------------------------------------------------
 def test_sys_path():
     """
     Check that app and flask are imported successfully
