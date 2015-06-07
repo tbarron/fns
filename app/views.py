@@ -21,12 +21,13 @@ def catch_all(path):
 @app.route('/')
 @app.route('/index')
 def index():
-    log.debug('index routine')
     user = None
-    try:
+    if hasattr(g, 'user') and g.user is not None:
         user = g.user
-    except NameError:
-        pass
+    elif hasattr(app, 'ucache') and app.ucache is not None:
+        # g.user gets clobbered in the test suite. This
+        # gets around that
+        user = g.user = app.ucache
 
     if user is None:
         return redirect('/login')
