@@ -1,6 +1,8 @@
 import os
 import shlex
 import subprocess
+import sys
+
 
 # -----------------------------------------------------------------------------
 def catch_stdout(cmd, input=None):
@@ -82,11 +84,14 @@ def get_version_path():
     groot = catch_stdout('git rev-parse --show-toplevel')
     if groot.startswith('ERR:'):
         groot = '.'
+    vpath = ''
     for r, d, f in os.walk(groot.strip()):
         if 'version.py' in f:
             vpath = os.path.join(r, 'version.py')
             break
-    return vpath
+    if vpath:
+        return vpath
+    sys.exit('File verison.py not found in current repo')
 
 
 # -----------------------------------------------------------------------------

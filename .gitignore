@@ -3,6 +3,7 @@
 *.pyc
 *.db
 *.txt
+*.rsp
 .#*
 \#*
 cmsg
