@@ -87,7 +87,9 @@ class TestFNS:
         """
         Hitting an unsupported url when logged in should redirect to /index
         """
-        self.log_inout('http://good.good_domain.org', '/unsupported')
+        self.log_inout('http://good.good_domain.org',
+                       '/unsupported',
+                       follow_redirects=True)
 
     # -------------------------------------------------------------------------
     def test_logged_out_root(self):
@@ -148,11 +150,11 @@ class TestFNS:
         return self.app.get('/logout', follow_redirects=True)
 
     # -------------------------------------------------------------------------
-    def log_inout(self, openid, url='/'):
+    def log_inout(self, openid, url='/', follow_redirects=False):
         rv = self.login(openid)
         self.verify_index_form(rv.data,
                                present="Successfully signed in as good")
-        rv = self.app.get(url)
+        rv = self.app.get(url, follow_redirects=follow_redirects)
         self.verify_index_form(rv.data,
                                absent="Successfully signed in as good")
         rv = self.logout()
