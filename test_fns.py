@@ -43,16 +43,18 @@ class LoginTestMonkeyPatch(object):
 
     # -------------------------------------------------------------------------
     def try_login(self, *args, **kwargs):
-        if not re.findall('^https*://', args[0]):
+        openid = re.sub('^https://', 'http://', args[0])
+        if not re.findall('^http://', openid):
             r = flask.Response()
             r.data = open('malformed.openid.rsp').read()
             return r
-        g.user = User.query.filter_by(openid=args[0]).first()
+        g.user = User.query.filter_by(openid=openid).first()
         app.ucache = g.user
         if g.user is not None:
             flash(u'Successfully signed in as %s' % g.user.name)
             return redirect('/')
-
+        else:
+            return redirect('/login')
 
 # -----------------------------------------------------------------------------
 class TestFNS:
@@ -75,6 +77,13 @@ class TestFNS:
         rv = self.logout()
         assert app.ucache is None
         assert self.login_form in rv.data
+
+    # -------------------------------------------------------------------------
+    def test_login_https(self):
+        """
+        Logging in with no scheme -- app should add scheme for us
+        """
+        self.log_inout('https://good.good_domain.org')
 
     # -------------------------------------------------------------------------
     def test_logged_in_root(self):
