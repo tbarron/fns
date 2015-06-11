@@ -6,6 +6,7 @@ from app import log
 import fns_util
 import pdb
 import re
+import version
 
 
 # -----------------------------------------------------------------------------
@@ -40,7 +41,8 @@ def index():
     return render_template('index.html',
                            title='Float & Sink',
                            user=user,
-                           bm_list=fns_util.bm_list(user.id, db))
+                           bm_list=fns_util.bm_list(user.id, db),
+                           version=version.__version__)
 
 
 # -----------------------------------------------------------------------------
@@ -76,7 +78,8 @@ def login():
     return render_template('login.html',
                            next=oid.get_next_url(),
                            error=oid.fetch_error(),
-                           form=form)
+                           form=form,
+                           version=version.__version__)
 
 
 # -----------------------------------------------------------------------------
@@ -132,7 +135,9 @@ def create_profile():
             db.session.add(User(name, email, session['openid']))
             db.session.commit()
             return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url())
+    return render_template('create_profile.html',
+                           next_url=oid.get_next_url(),
+                           version=version.__version__)
 
 
 # -----------------------------------------------------------------------------
@@ -161,7 +166,9 @@ def edit_profile():
             g.user.email = form['email']
             db.session.commit()
             return redirect(url_for('index'))
-    return render_template('edit_profile.html', form=form)
+    return render_template('edit_profile.html',
+                           form=form,
+                           version=version.__version__)
 
 
 # -----------------------------------------------------------------------------
@@ -186,7 +193,10 @@ def edit_bookmark():
             form.name.data = bm.name
             form.url.data = bm.url
             form.comment.data = bm.comment
-            return render_template('edit_bookmark.html', form=form, bm=bm)
+            return render_template('edit_bookmark.html',
+                                   form=form,
+                                   bm=bm,
+                                   version=version.__version__)
         elif 'id' in request.form and request.form['id']:
             bm = Bookmark.query.filter_by(id=request.form['id']).first()
             if bm is not None:
@@ -204,4 +214,6 @@ def edit_bookmark():
         return redirect(url_for('index'))
 
     form = BookmarkForm()
-    return render_template('edit_bookmark.html', form=form)
+    return render_template('edit_bookmark.html',
+                           form=form,
+                           version=version.__version__)
