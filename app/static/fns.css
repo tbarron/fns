@@ -9,6 +9,12 @@ body {
     transform: translate(-50%, -50%);
 }
 
+.version {
+    position: fixed;
+    top: 93%;
+    left: 80%;
+}
+
 .fcenter {
     text-align: center;
 }

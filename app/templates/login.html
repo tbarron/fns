@@ -1,8 +1,5 @@
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="static/fns.css">
-</head>
-<body>
+{% extends "layout.html" %}
+{% block body %}
   <div class="center">
   <form action="" method="post" name="login" class="fcenter">
     {{ form.hidden_tag() }}
@@ -25,5 +22,4 @@
   {% endwith %}
   </div>
   </div>
-</body>
-</html>
+{% endblock %}
