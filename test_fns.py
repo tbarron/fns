@@ -7,6 +7,7 @@ from app import app, init_db, User, log, g, oid, db
 import os
 import pdb
 import pytest
+import re
 import tempfile
 from contextlib import contextmanager
 from flask import appcontext_pushed
@@ -42,16 +43,38 @@ class LoginTestMonkeyPatch(object):
 
     # -------------------------------------------------------------------------
     def try_login(self, *args, **kwargs):
-        g.user = User.query.filter_by(name='good').first()
+        if not re.findall('^https*://', args[0]):
+            r = flask.Response()
+            r.data = open('malformed.openid.rsp').read()
+            return r
+        g.user = User.query.filter_by(openid=args[0]).first()
         app.ucache = g.user
-        flash(u'Successfully signed in as %s' % g.user.name)
-        return redirect('/')
+        if g.user is not None:
+            flash(u'Successfully signed in as %s' % g.user.name)
+            return redirect('/')
 
 
 # -----------------------------------------------------------------------------
 class TestFNS:
     redirect_msg = "You should be redirected automatically to target URL:"
     login_form = 'name="login"'
+
+    # -------------------------------------------------------------------------
+    def test_login_noscheme(self):
+        """
+        Logging in with no scheme -- app should add scheme for us
+        """
+        rv = self.login('good.good_domain.org')
+        self.verify_index_form(rv.data,
+                               present="Successfully signed in as good")
+        # assert "Successfully signed in as good" in rv.data
+        # assert "Here are your bookmarks" in rv.data
+        rv = self.app.get('/')
+        assert "Successfully signed in as good" not in rv.data
+        assert "Here are your bookmarks" in rv.data
+        rv = self.logout()
+        assert app.ucache is None
+        assert self.login_form in rv.data
 
     # -------------------------------------------------------------------------
     def test_logged_in_root(self):

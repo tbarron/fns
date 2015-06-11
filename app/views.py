@@ -5,6 +5,7 @@ from app import app, oid, LoginForm, BookmarkForm, User, Bookmark, db
 from app import log
 import fns_util
 import pdb
+import re
 
 
 # -----------------------------------------------------------------------------
@@ -54,6 +55,8 @@ def login():
         return redirect(oid.get_next_url())
     if request.method == 'POST':
         openid = request.form.get('openid')
+        if not re.findall('^https*://', openid):
+            openid = 'http://' + openid
         if openid:
             pape_req = pape.Request([])
             x = oid.try_login(openid, ask_for=['email', 'nickname'],
