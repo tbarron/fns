@@ -66,17 +66,7 @@ class TestFNS:
         """
         Logging in with no scheme -- app should add scheme for us
         """
-        rv = self.login('good.good_domain.org')
-        self.verify_index_form(rv.data,
-                               present="Successfully signed in as good")
-        # assert "Successfully signed in as good" in rv.data
-        # assert "Here are your bookmarks" in rv.data
-        rv = self.app.get('/')
-        assert "Successfully signed in as good" not in rv.data
-        assert "Here are your bookmarks" in rv.data
-        rv = self.logout()
-        assert app.ucache is None
-        assert self.login_form in rv.data
+        self.log_inout('good.good_domain.org')
 
     # -------------------------------------------------------------------------
     def test_login_https(self):
@@ -90,32 +80,14 @@ class TestFNS:
         """
         Hitting / when logged in should redirect to /index
         """
-        rv = self.login('http://good.good_domain.org')
-        self.verify_index_form(rv.data,
-                               present="Successfully signed in as good")
-        # assert "Successfully signed in as good" in rv.data
-        # assert "Here are your bookmarks" in rv.data
-        rv = self.app.get('/')
-        assert "Successfully signed in as good" not in rv.data
-        assert "Here are your bookmarks" in rv.data
-        rv = self.logout()
-        assert app.ucache is None
-        assert self.login_form in rv.data
+        self.log_inout('http://good.good_domain.org', '/')
 
     # -------------------------------------------------------------------------
     def test_logged_in_unsupported(self):
         """
         Hitting an unsupported url when logged in should redirect to /index
         """
-        rv = self.login('http://good.good_domain.org')
-        assert "Successfully signed in as good" in rv.data
-        assert "Here are your bookmarks" in rv.data
-        rv = self.app.get('/unsupported', follow_redirects=True)
-        assert "Successfully signed in as good" not in rv.data
-        assert "Here are your bookmarks" in rv.data
-        rv = self.logout()
-        assert app.ucache is None
-        assert self.login_form in rv.data
+        self.log_inout('http://good.good_domain.org', '/unsupported')
 
     # -------------------------------------------------------------------------
     def test_logged_out_root(self):
@@ -176,6 +148,18 @@ class TestFNS:
         return self.app.get('/logout', follow_redirects=True)
 
     # -------------------------------------------------------------------------
+    def log_inout(self, openid, url='/'):
+        rv = self.login(openid)
+        self.verify_index_form(rv.data,
+                               present="Successfully signed in as good")
+        rv = self.app.get(url)
+        self.verify_index_form(rv.data,
+                               absent="Successfully signed in as good")
+        rv = self.logout()
+        self.verify_logged_out()
+        self.verify_login_form(rv.data)
+
+    # -------------------------------------------------------------------------
     def logged_out_url(self, url):
         rv = self.app.get(url)
         self.verify_redirect_to('login', rv.data)
@@ -195,6 +179,10 @@ class TestFNS:
         pass
         os.close(self.db_fd)
         os.unlink(app.config['DATABASE'])
+
+    # -------------------------------------------------------------------------
+    def verify_logged_out(self):
+        assert app.ucache is None
 
     # -------------------------------------------------------------------------
     def verify_login_form(self, data):
