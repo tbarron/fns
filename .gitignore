@@ -4,6 +4,7 @@
 *.db
 *.txt
 *.rsp
+rsp.data
 .#*
 \#*
 cmsg
