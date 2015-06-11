@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+"""
+git hook to ensure that the version has been incremented since the last commit
+
+This git hooks assumes that the current package's version is defined in a file
+named version.py somewhere in the tree with a single line of the form
+
+   __version__ = '<version-string>'
+
+To use this hook, if your git repository is at $GIT,
+
+   mkdir $GIT/githooks
+   cp from/somewhere/pre-commit $GIT/githooks
+   rm -f .git/hooks/pre-commit
+   ln -s $GIT/githooks/pre-commit .git/hooks/pre-commit
+
+"""
+import ghlib
+import os
+import pdb
+import sys
+import time
+
+def main(args):
+    """
+    Entry point
+    """
+    if 1 < len(args):
+        pdb.set_trace()
+    vfname = ghlib.get_version_path()
+    (v_full, v_head, v_tail) = ghlib.get_version_ht()
+    (g_full, g_head, g_tail) = ghlib.git_describe_ht()
+
+    if g_head == v_head and v_tail != g_tail + 1:
+        raise SystemExit("""
+        Looks like %s should contain %s.%d
+                                    but it's got %s
+
+        I'd update it for you, but git won't let me. >:(
+        """ % (os.path.relpath(vfname), v_head, g_tail+1, v_full))
+
+    if not version_staged(vfname):
+        raise SystemExit("""
+        %s is not staged. Looks like you need to make sure it contains the right
+        version and do
+
+            git add %s
+
+        then try your commit again.
+        """ % (os.path.relpath(vfname), os.path.relpath(vfname)))
+
+
+def version_staged(vfname):
+    """
+    Return True if file *vfname* is staged, otherwise False
+    """
+    r = ghlib.catch_stdout('git status --porc')
+    staged = False
+    for line in r.split('\n'):
+        if os.path.relpath(vfname) in line and line.startswith(("M  ", "A  ")):
+            staged = True
+    return staged
+
+
+if __name__ == '__main__':
+    main(sys.argv)

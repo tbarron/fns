@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+"""
+git hook for adding version and gerrit Change-Id to commit message
+
+!@! Conform to just inserting Version:
+
+This git hooks assumes that the current package's version is defined in a file
+named version.py somewhere in the tree with a single line of the form
+
+   __version__ = '<version-string>'
+
+To use this hook, if your git repository is at $GIT,
+
+   mkdir $GIT/githooks
+   cp from/somewhere/commit-msg $GIT/githooks
+   rm -f .git/hooks/commit-msg
+   ln -s $GIT/githooks/commit-msg .git/hooks/commit-msg
+
+"""
+import ghlib
+import optparse
+import os
+import pdb
+import shlex
+import StringIO
+import subprocess
+import sys
+
+
+# -----------------------------------------------------------------------------
+def main(args):
+    """
+    Entry point
+    """
+    p = optparse.OptionParser()
+    p.add_option('-d', '--debug',
+                 action='store_true', default=False, dest='debug',
+                 help='run the debugger')
+    (o, a) = p.parse_args(args)
+    if o.debug:
+        pdb.set_trace()
+
+    filename = a[1]
+
+    msg = ghlib.contents(filename)
+    (payload, version, cid, comments) = ghlib.split_msg(msg)
+
+    if version.replace('Version:', '').strip() == '':
+        version = ghlib.get_version()
+
+    newname = ghlib.save_new(filename, payload, version, cid, comments)
+    os.rename(filename, filename + ".old")
+    os.rename(newname, filename)
+
+
+# -----------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)
