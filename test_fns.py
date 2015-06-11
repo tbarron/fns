@@ -194,7 +194,8 @@ class TestFNS:
                    '<input autofocus="autofocus" id="openid" ' +
                    'name="openid" size="80" type="text" value="">',
                    'autofocus',
-                   'class="fcenter"']
+                   'class="fcenter"',
+                   'Version:']
         for exp in explist:
             assert exp in data
 
@@ -203,7 +204,8 @@ class TestFNS:
         explist = ['<link rel="stylesheet" type="text/css" ' +
                    'href="static/fns.css">',
                    '<h3>Hello, good</h3>',
-                   'Here are your bookmarks']
+                   'Here are your bookmarks',
+                   'Version:']
         if present:
             if type(present) == str:
                 explist.append(present)
